@@ -1,6 +1,5 @@
 (function () {
-  var domShortcutInput;
-  var storageKey = "shortcutOptions";
+  var domShortcutInput, shortcutOptions;
 
   function initialize() {
     document.addEventListener("DOMContentLoaded", onDomReady, false);
@@ -33,7 +32,10 @@
     document.querySelector('button').addEventListener("click", onButtonClicked, false);
     domShortcutInput.addEventListener("focus", onShortcutFocus, false);
 
-    restore_options();
+    chrome.extension.sendRequest({'action' : 'getSettings'}, function(settings) {
+      shortcutOptions = settings;
+      handleKeys(shortcutOptions.keyIdentifier, shortcutOptions.altKeySelected, shortcutOptions.controlKeySelected, shortcutOptions.shiftKeySelected);
+    });
   }
 
   function onShortcutFocus() {
@@ -67,19 +69,19 @@
       }
     }
 
+    shortcutOptions = {
+      "keyIdentifier" :  e.keyIdentifier,
+      "altKeySelected": e.altKey,
+      "controlKeySelected" : e.ctrlKey,
+      "shiftKeySelected": e.shiftKey
+    };
+
     handleKeys(e.keyIdentifier, e.altKey, e.ctrlKey, e.shiftKey);
   }
 
   // Saves options to localStorage.
   function onButtonClicked() {
-    var shortcutOptions = {
-      "keyIdentifier" :  shortcutKeyIdentifier,
-      "altKeySelected": altKeySelected,
-      "controlKeySelected" : controlKeySelected,
-      "shiftKeySelected": shiftKeySelected
-    };
-
-    localStorage[storageKey] = JSON.stringify(shortcutOptions);
+    chrome.extension.sendRequest({'action' : 'saveSettings', 'data' : shortcutOptions});
 
     // Update status to let user know options were saved.
     var status = document.querySelector('.status');
@@ -87,12 +89,6 @@
     setTimeout(function() {
       status.innerHTML = "";
     }, 1500);
-  }
-
-  // Restores select box state to saved value from localStorage.
-  function restore_options() {
-    var shortcutOptions = JSON.parse(localStorage[storageKey]);
-    handleKeys(shortcutOptions["keyIdentifier"], shortcutOptions["altKeySelected"], shortcutOptions["controlKeySelected"], shortcutOptions["shiftKeySelected"]);
   }
 
   initialize();

@@ -3,8 +3,8 @@
   var shortcutSettings;
 	function initialize() {
     document.addEventListener("keydown", onWindowKeyUp, false);
-    chrome.runtime.onMessage.addListener(onExtensionRequest);
-    chrome.runtime.sendMessage({'action' : 'getSettings'}, onGetSettings);
+    chrome.extension.onRequest.addListener(onExtensionRequest);
+    chrome.extension.sendRequest({'action' : 'getSettings'}, onGetSettings);
 	}
 
 	function reload() {
