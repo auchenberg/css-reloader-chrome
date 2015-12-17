@@ -2,6 +2,11 @@
 
     var shortcutSettings;
     
+    var blacklist = [
+        new Regexp('^https?://use\.typekit\.net\/'),
+        new Regexp('^https?://fonts\.googleapis\.com\/')
+    ];
+    
     function initialize() {
         document.addEventListener("keydown", onWindowKeyDown, false);
         chrome.extension.onRequest.addListener(onExtensionRequest);
@@ -11,8 +16,15 @@
     function reload() {
         var elements = document.querySelectorAll('link[rel=stylesheet][href]');
         for (var i = 0, element; element = elements[i]; i++) {
+            if (isBlacklisted(element.href)) continue;
             var href = element.href.replace(/[?&]cssReloader=([^&$]*)/,'');
             element.href = href + (href.indexOf('?')>=0?'&':'?') + 'cssReloader=' + (new Date().valueOf());
+        }
+    }
+    
+    function isBlacklisted(href) {
+        for (var i = 0, len = blacklist.length; i < len; i++) {
+            if (blacklist[i].test(href)) return true;
         }
     }
 
