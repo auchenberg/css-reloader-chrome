@@ -24,9 +24,11 @@
     }
 
     function domainIsBlacklisted(domain) {
-        for (var i=0;i<allSettings["blacklist"].length;i++) {
-            if (allSettings["blacklist"][i] == domain) {
-                return true;
+        if (allSettings["blacklist"]) {
+            for (var i = 0; i < allSettings["blacklist"].length; i++) {
+                if (allSettings["blacklist"][i] == domain) {
+                    return true;
+                }
             }
         }
         return false;
